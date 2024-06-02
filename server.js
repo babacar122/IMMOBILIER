@@ -119,3 +119,26 @@ app.put('/api/locataires/:id', (req, res) => {
     });
 });
 
+app.get('/quittance/:userId', (req, res) => {
+    const userId = req.params.userId;
+
+    const query = `
+        SELECT SUM(amount) as totalAmount
+        FROM invoices
+        WHERE user_id = ? AND paid = TRUE
+    `;
+
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error('Erreur lors de la requête:', err);
+            return res.status(500).json({ error: 'Erreur interne du serveur' });
+        }
+
+        const totalAmount = results[0].totalAmount;
+
+        res.json({
+            userId: userId,
+            quittance: totalAmount
+        });
+    });
+});
